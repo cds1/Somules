@@ -1,0 +1,35 @@
+Analysis
+1) CellRanger to obtain matrices
+Obtaining the matrices using CellRanger. In this case, we used version 2 of CellRanger 2.2.0 
+
+2) Using Velocyto to generate loom files 
+
+This is may be more or less complicated depending on the computer system set-ups for your institution and data outputs. 
+In our institution, a core facility generates matrices using CellRanger. 
+Although the outputs are the same, the folders with the results has different names. Before starting make sure that:
+
+1) Have a folder named “outs”. In that folder, have a file named “_log” containing the statement: “Pipestance completed successfully!”
+I actually have _log file inside and outside the outs folder in case. You can easily make one by doing:
+cat > _log
+Pipestance completed successfully!
+^C (to close)
+
+2) I have a virtual environment that I created using Conda called “my_project” to set up the environment to run velocyto
+
+- First install conda or miniconda
+- Then create the environment using: conda create -n my_project python=3.6 anaconda
+- Activate with: source Analysis/10X_schisto/References_Schisto/my_project/bin/activate
+- Make sure that samtools-1.6 is in your path: module load samtools/1.6--h244ad75_4
+- Then using conda install everything you need for the analysis following the information on:
+http://velocyto.org/velocyto.py/install/index.html#install
+
+But in a nutshell: 
+-conda install numpy scipy cython numba matplotlib scikit-learn h5py click
+-conda update python (you may not need this)
+-pip install -U loompy
+-pip install velocyto
+-Velocyto will install pysam but if not, you can do pip install pysam
+
+Notes: I work in the farm but make sure that your home directory has space because velocyto and loompy appear to put some temporary files in there. If not enough space, it will give you errors and will not run. 
+
+-After all of this is done run your jobs.
