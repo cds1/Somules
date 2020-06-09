@@ -4,7 +4,7 @@ Velocyto and loom set up in the farm
 
 Obtaining the matrices using CellRanger. In this case, we used version 2 of CellRanger 2.2.0 
 
-2) Using Velocyto to generate loom files 
+2) Generate loom files 
 
 This is may be more or less complicated depending on the computer system set-ups for your institution and data outputs. 
 In our institution, a core facility generates matrices using CellRanger. 
