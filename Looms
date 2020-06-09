@@ -1,4 +1,4 @@
-Analysis velocyto and loom set up in the farm
+Velocyto and loom set up in the farm
 1) CellRanger to obtain matrices
 Obtaining the matrices using CellRanger. In this case, we used version 2 of CellRanger 2.2.0 
 
