@@ -1,5 +1,7 @@
 Velocyto and loom set up in the farm
+
 1) CellRanger to obtain matrices
+
 Obtaining the matrices using CellRanger. In this case, we used version 2 of CellRanger 2.2.0 
 
 2) Using Velocyto to generate loom files 
@@ -8,13 +10,14 @@ This is may be more or less complicated depending on the computer system set-ups
 In our institution, a core facility generates matrices using CellRanger. 
 Although the outputs are the same, the folders with the results have different names. Before starting make sure that:
 
-1) Have a folder named “outs”. In that folder, have a file named “_log” containing the statement: “Pipestance completed successfully!”
+3) Have a folder named “outs”. In that folder, have a file named “_log” containing the statement: “Pipestance completed successfully!”
+
 I actually have _log file inside and outside the outs folder in case. You can easily make one by doing:
 cat > _log
 Pipestance completed successfully!
 ^C (to close)
 
-2) I have a virtual environment that I created using Conda called “my_project” to set up the environment to run velocyto
+4) I have a virtual environment that I created using Conda called “my_project” to set up the environment to run velocyto
 
 - First install conda or miniconda
 - Then create the environment using: conda create -n my_project python=3.6 anaconda
@@ -32,5 +35,5 @@ But in a nutshell:
 
 Notes: I work in the farm but make sure that your home directory has space because velocyto and loompy appear to put some temporary files in there. If not enough space, it will give you errors and will not run. 
 
--After all of this is done run your jobs.
+5) After all of this is done run your jobs.
 velocyto run --samtools-memory 1024 --samtools-threads 4 -b barcodes.tsv -o velo_results possorted_genome_bam.bam genes.gtf
