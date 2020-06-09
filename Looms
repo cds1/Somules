@@ -33,3 +33,4 @@ But in a nutshell:
 Notes: I work in the farm but make sure that your home directory has space because velocyto and loompy appear to put some temporary files in there. If not enough space, it will give you errors and will not run. 
 
 -After all of this is done run your jobs.
+velocyto run --samtools-memory 1024 --samtools-threads 4 -b barcodes.tsv -o velo_results possorted_genome_bam.bam genes.gtf
