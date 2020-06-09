@@ -6,7 +6,7 @@ Obtaining the matrices using CellRanger. In this case, we used version 2 of Cell
 
 This is may be more or less complicated depending on the computer system set-ups for your institution and data outputs. 
 In our institution, a core facility generates matrices using CellRanger. 
-Although the outputs are the same, the folders with the results has different names. Before starting make sure that:
+Although the outputs are the same, the folders with the results have different names. Before starting make sure that:
 
 1) Have a folder named “outs”. In that folder, have a file named “_log” containing the statement: “Pipestance completed successfully!”
 I actually have _log file inside and outside the outs folder in case. You can easily make one by doing:
