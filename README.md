@@ -1,7 +1,7 @@
 
 # Single-cell atlas of the first intra-mammalian developmental stage of the human parasite Schistosoma mansoni
 
-This repository contains the various scripts necessary for the original analysis of the paper published in NatComms: Single-cell atlas of the first intra-mammalian developmental stage of the human parasite Schistosoma mansoni.
+This repository contains the various scripts used in the original analysis of the paper published in NatComms: Single-cell atlas of the first intra-mammalian developmental stage of the human parasite Schistosoma mansoni.
 
 The main purpose of this code is to document the details of the analysis methodology used in the paper.
 
