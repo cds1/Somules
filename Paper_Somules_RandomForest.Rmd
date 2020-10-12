@@ -1,0 +1,185 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+```{r}
+---
+title: "Random Forest Analysis Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+```{r}
+#setwd('~/Projects/Schisto')
+#Train and apply random forests to schisto data
+
+mDat <- read.csv("Planaria_Seurat_annot_CD.cvs", stringsAsFactors=FALSE, header=TRUE)
+
+#############
+# Libraries #
+#############
+library(randomForest)
+library(reshape2)
+
+
+##########
+# Params #
+##########
+#This is the Seurat object of the schistosomula matrix where the names of the genes with 1:1 orthologues have been changed to the planarian names as described in the methods. 
+
+load('Data/Random_Forest.rdata')
+
+#############
+# Functions #
+#############
+#Function for the confusion matrix
+plotConfusionMatrix = function(X,row.scale=TRUE, col.scale=FALSE, cols.use=gray.colors(10), max.size=5, ylab.use="Known", xlab.use="Predicted"){
+  
+  if (!col.scale & row.scale){ X = t(scale(t(X), center=FALSE, scale=rowSums(X)));  X=X*100 }
+  if (col.scale & !row.scale){ X = scale(X, center=FALSE, scale=colSums(X)); X = X*100 }
+  if(col.scale & row.scale){
+    print("Only one of row.scale or col.scale should be true. performing row scaling by default")
+    X = t(scale(t(X), center=FALSE, scale=rowSums(X)))
+    X=X*100
+  }
+  #X = X[rev(1:dim(X)[1]),]
+  X = melt(X)
+  colnames(X) = c("Known", "Predicted", "Percentage")
+  X$Known = factor(X$Known, levels=rev(unique(X$Known)));
+  X$Predicted = as.factor(X$Predicted)
+  p = ggplot(X, aes(y = Known,  x = Predicted)) + geom_point(aes(colour = Percentage,  size = Percentage)) + 
+    scale_color_gradient(low ="#c1bcba",   high = "#ff0000", limits=c(0, 100 ))+scale_size(range = c(1, max.size))+   theme_classic() #+nogrid
+  p = p + xlab(xlab.use) + ylab(ylab.use) + theme(axis.text.x=element_text(size=12, face="italic", hjust=1)) + 
+    theme(axis.text.y=element_text(size=8, face="italic"))  
+  print(p)
+}
+
+########
+# Code #
+########
+#Determine which genes are in common
+genes.use = GenestoUse #this list is provided in a table in the manuscript
+genes.use = genes.use[genes.use %in% rownames(plana)]
+genes.use = genes.use[genes.use %in% rownames(schistoRF)]
+#Add finalID to meta-data
+m = match(rownames(plana@meta.data),mDat$X)
+plana@meta.data$Join_Id7 = mDat$Join_Id7[m]
+
+#Testing in planaria first
+training.set = c()
+test.set=c()
+training.label = c()
+test.label=c()
+#Larva10x = set.all.ident(Larva10x, id = 'm')
+tgtLabs = plana@meta.data$Join_Id7
+for(tgtLab in unique(tgtLabs)){
+  #Get cells with this label
+  cells.in.clust = rownames(plana@meta.data)[tgtLabs==tgtLab]
+  #Work out how many to put in training set
+  n = min(500, round(length(cells.in.clust)*0.7))#but you can test 0.8 as well
+  #Pick n random cells from this cluster
+   train.temp = sample(cells.in.clust,n)
+   train.temp = cells.in.clust[sample(length(cells.in.clust))][1:n]
+  #Put the rest in the test data
+   test.temp = setdiff(cells.in.clust, train.temp)
+  #Save them
+   training.set = c(training.set,train.temp)
+   test.set=c(test.set,test.temp)
+  #And save the labels too
+   training.label = c(training.label, rep(tgtLab,length(train.temp)))
+   test.label = c(test.label, rep(tgtLab, length(test.temp)))
+}
+
+
+#Prepare the data
+predictor_Data = t(scale(t(as.matrix(plana@assays$RNA[genes.use,])),center=TRUE, scale=TRUE))
+
+tmp = as.vector(table(training.label))
+
+# Try 1001 
+rf_output=randomForest(x=t(predictor_Data[,training.set]), y=factor(training.label), importance = TRUE, ntree = 501, proximity=TRUE, sampsize=sampsizes, keep.inbag=TRUE, replace=FALSE) 
+Conf_OOB0 = rf_output$confusion
+
+rf_output[is.na(rf_output)] = 0
+
+# Self prediction of plana
+test.predict.prob = predict(rf_output,t(predictor_Data[,test.set]), type="prob")
+thresh = 0.16 # The class with the maximum probability needs to have at least this margin
+test.predict = apply(test.predict.prob,1,function(x) if (max(x) > thresh){ which.max(x) } else {100})
+Conf_test = table(test.label,test.predict)
+plotConfusionMatrix(Conf_test,row.scale=TRUE, max.size = 12, xlab.use="Plana_10x", ylab.use="Predicted RF Test")
+
+#get predictor data for the test samples. In this case, schistosomes
+schisto.predict = as.matrix(schistoRF@assays$RNA[genes.use,])
+
+
+#Scaling v1
+schisto.rf = t(scale(t(schisto.predict),center=rowMeans(as.matrix(plana@assays$RNA[genes.use,])), scale=TRUE))
+
+#Scaling v2
+#schisto.rf = t(scale(t(schisto.rf), center=TRUE, scale=TRUE))
+
+# No scaling
+schisto.rf[is.na(schisto.rf)] = 0
+
+#You can pass the identity used in the paper to the schistosomula matrix. Please note that the schistosomula matrix with schisto and planaria 1:1 orthologues is exactly the same as the matrix used in the paper. The only difference is that we substituted gene names by the counts and the matrix remains the same.
+
+schisto.ident = somules@paper.ident 
+
+schisto.predict.prob = predict(rf_output,t(schisto.rf), type="prob")
+thresh = 0.16 # The class with the maximum probability needs to have at least this margin
+schisto.predict = apply(schisto.predict.prob,1,function(x) if (max(x) > thresh){ which.max(x) } else {100})
+
+Conf_schisto_test = table(schisto.ident, schisto.predict) 
+
+plotConfusionMatrix(Conf_schisto_test,row.scale=TRUE, max.size = 12, xlab.use="Plana_10X", ylab.use="Predicted RF Test")
+
+
+#training.set = NULL
+#test.set=NULL
+#training.label = NULL
+#test.label=NULL
+#tgtLabs=NULL
+#cells.in.clust=NULL
+#n=NULL
+#tmp=NULL
+#train.temp=NULL
+#test.temp=NULL
+#predictor_Data=NULL
+#sampsizes=NULL
+#Conf_OOB0=NULL
+#rf_output=NULL
+#schisto.rf=NULL
+#schisto.predict.prob=NULL
+#schisto.predict=NULL
+#Conf_test=NULL
+
+
+
+
+
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
+
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
