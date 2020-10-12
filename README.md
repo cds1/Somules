@@ -9,5 +9,5 @@ The main purpose of this code is to document the details of the analysis methodo
 
 2) The analysis of this dataset is carried out by Seurat. 
 
-3) Please note that we provide some scripts that require files to be in a certain format. Nonetheless, the scripts should be provide the information if the reader would like to repeat the analysis. 
+3) Please note that we provide some scripts that require files to be in a specific format. Nonetheless, the scripts provide all the information required for the reader to repeat the analysis. 
 
