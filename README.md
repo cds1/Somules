@@ -5,9 +5,17 @@ This repository contains the various scripts used in the original analysis of th
 
 The main purpose of this code is to document the details of the analysis methodology used in the paper.
 
-1) Chromium 10X single-cell RNAseq is mapped using CellRanger. Please note that this part of the analysis was done by the core facility at the Sanger Institute. However, the code for CellRanger should be accessible from the 10X website. We encourange the reader to check this with 10X. 
+1) #Mapping: Chromium 10X single-cell RNAseq is mapped using CellRanger. Please note that this part of the analysis was done by the core facility at the Sanger Institute. However, the code for CellRanger should be accessible from the 10X website. We encourange the reader to check this with 10X. 
 
-2) The analysis of this dataset is carried out by Seurat. 
+2) #Seurat: The analysis of this dataset is carried out by Seurat. 
 
-3) Please note that we provide some scripts that require files to be in a specific format. Nonetheless, the scripts provide all the information required for the reader to repeat the analysis. 
+3) #Random Forest Data prep: We are providing a script that was used to update the raw matrix with the planaria orthologues.
+
+4) #Random Forest analysis: We compared planarian and schistosomes datasets as described in the methods
+
+5) #TopGo: We also include a figure in the paper where we analyse the Go terms for each of the clusters.
+
+
+
+
 
